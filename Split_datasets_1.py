@@ -1,3 +1,4 @@
+import math
 import shutil
 import os
 
@@ -10,16 +11,21 @@ def split_dataset_into_3(path_to_dataset, train_ratio, valid_ratio):
     :param valid_ratio:
     :return:
     """
+
+    """sub_dirs will retrieve the name of subdirectories, 
+    path_to_dataset is the directory where the original datasets are stored"""
     _, sub_dirs, _ = next(iter(os.walk(path_to_dataset)))  # retrieve name of subdirectories
     sub_dir_item_cnt = [0 for i in range(len(sub_dirs))]  # list for counting items in each sub directory(class)
 
-    # directories where the splitted dataset will lie
+    """directories where the splitted dataset will lie, 
+    it will create the sub-directory under ./label with the name 'train', 'validation' etc"""
     dir_train = os.path.join(os.path.dirname(path_to_dataset), 'train')
     dir_valid = os.path.join(os.path.dirname(path_to_dataset), 'validation')
     dir_test = os.path.join(os.path.dirname(path_to_dataset), 'test')
 
+    """sub_dir is the sub-directory 0, 1, 2... including train and validation"""
     for i, sub_dir in enumerate(sub_dirs):
-
+        """print sub-directory 0, 1, 2... inside train and validation directory"""
         dir_train_dst = os.path.join(dir_train, sub_dir)  # directory for destination of train dataset
         dir_valid_dst = os.path.join(dir_valid, sub_dir)  # directory for destination of validation dataset
         dir_test_dst = os.path.join(dir_test, sub_dir)  # directory for destination of test dataset
@@ -27,8 +33,9 @@ def split_dataset_into_3(path_to_dataset, train_ratio, valid_ratio):
         # variables to save the sub directory name(class name) and to count the images of each sub directory(class)
         class_name = sub_dir
         sub_dir = os.path.join(path_to_dataset, sub_dir)
+        """the following will count the length of (sub_dir)"""
         sub_dir_item_cnt[i] = len(os.listdir(sub_dir))
-
+        """items will list out the content of the sub-dir (i.e. in jpg format)"""
         items = os.listdir(sub_dir)
 
         # transfer data to trainset
