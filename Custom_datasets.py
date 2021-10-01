@@ -9,7 +9,7 @@ import torch.nn as nn
 import torch.optim as optim
 
 
-train_dataset_path = "../Module8 Project/label"
+train_dataset_path = "./Module8-Project/label"
 
 # image = (image - mean) / std
 
