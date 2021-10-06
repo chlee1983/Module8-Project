@@ -17,8 +17,8 @@ validation_loader = torch.utils.data.DataLoader(dataset=validation_dataset, batc
 
 for images, _ in training_loader:
     tr_image_count_in_a_batch = images.size(0)
-    print("training images" + str(tr_image_count_in_a_batch))
+    print("training images " + str(tr_image_count_in_a_batch))
 
 for images, _ in validation_loader:
     tr_image_count_in_a_batch = images.size(0)
-    print("validation images" + str(tr_image_count_in_a_batch))
+    print("validation images " + str(tr_image_count_in_a_batch))
