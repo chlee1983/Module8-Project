@@ -9,7 +9,7 @@ import torchvision.transforms as transforms
 import torchvision.models as models
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-from torchvision import datasets
+
 
 # importing dataset
 ori_data_folder = './label'
