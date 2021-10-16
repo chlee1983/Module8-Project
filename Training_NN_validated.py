@@ -9,7 +9,6 @@ import torchvision.transforms as transforms
 import torchvision.models as models
 
 # importing dataset
-# ori_data_folder = './label'
 train_data_folder = './train'
 val_data_folder = './validation'
 
@@ -17,7 +16,6 @@ train_transforms = transforms.Compose([transforms.RandomCrop(90), transforms.Ran
                                          transforms.ToTensor()])
 
 training_dataset = torchvision.datasets.ImageFolder(root=train_data_folder, transform=train_transforms)
-# original_dataset = torchvision.datasets.ImageFolder(root=ori_data_folder, transform=train_transforms)
 validation_dataset = torchvision.datasets.ImageFolder(root=val_data_folder, transform=train_transforms)
 
 '''To show the images loaded from the ImageFolder above
