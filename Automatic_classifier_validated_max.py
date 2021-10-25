@@ -6,10 +6,11 @@ import torchvision.models as models
 import glob
 import os
 import shutil
+import cv2
 
-label_directory = 'validation'
-unseen_image_path = 'D:/Git/Module8 Project/Segment2/'
-derived_parent_path = 'D:/Git/Module8 Project/Analyzed/'
+label_directory = 'D:/Git/Module8Testing/val/'
+unseen_image_path = 'D:/Git/Module8Testing/SegmentR_20k/'
+derived_parent_path = 'D:/Git/Module8Testing/analysis_4_segmentR_20k/'
 
 model = models.resnet18()
 num_features = model.fc.in_features
@@ -53,23 +54,11 @@ def classify(model, image_transforms, image_path, mapping_results, image_path_pa
         os.makedirs(derived_image_path)
 
     source_file = image_path
-    dest_file = derived_image_path
-    shutil.copy(source_file, dest_file)
+    dest_path = derived_image_path
+    shutil.copy(source_file, dest_path)
+    # os.rename(ground_truth_image, )
+    # shutil.copy(ground_truth_image, dest_file)
 
 
-path = r'D:/Git/Module8 Project/Segment2/*.jpg'
-for file in glob.glob(path):
+for file in glob.glob(unseen_image_path):
     classify(model, image_transforms, file, mapping_results, derived_parent_path)
-
-
-
-
-
-
-
-
-
-
-
-
-

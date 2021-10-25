@@ -7,10 +7,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import torchvision.transforms as transforms
 import torchvision.models as models
+from torch.utils.tensorboard import SummaryWriter
 
 # importing dataset
 train_data_folder = './train'
 val_data_folder = './validation'
+writer = SummaryWriter('runs/tensor_board_18_2')
+training_model = models.resnet18(pretrained=False)
 
 train_transforms = transforms.Compose([transforms.RandomCrop(90), transforms.RandomRotation(15),
                                          transforms.ToTensor()])
@@ -43,6 +46,9 @@ training_loader = torch.utils.data.DataLoader(training_dataset, batch_size=32, s
 # original_loader = torch.utils.data.DataLoader(original_dataset, batch_size=32, shuffle=True)
 validation_loader = torch.utils.data.DataLoader(validation_dataset, batch_size=32, shuffle=False)
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
+training_imageset = iter(training_loader)
+training_images, _ = next(training_imageset)
 
 
 def train_nn(model, train_loader, test_loader, criterion, optimizer, n_epochs):
@@ -77,11 +83,14 @@ def train_nn(model, train_loader, test_loader, criterion, optimizer, n_epochs):
 
         epoch_loss = running_loss / len(train_loader)
         epoch_acc = 100 * running_correct / total
+        writer.add_scalar('Training loss', loss, epoch)
+        writer.add_scalar('Training accuracy', epoch_acc, epoch)
+        writer.close()
 
         print("- Training dataset. Got %d out of %d images correctly (%.3f%%). Epoch loss: %.3f"
               % (running_correct, total, epoch_acc, epoch_loss))
 
-        test_dataset_acc = evaluate_model_on_test_set(model, test_loader)
+        test_dataset_acc = evaluate_model_on_test_set(model, test_loader, epoch)
         if test_dataset_acc > best_acc:
             best_acc = test_dataset_acc
             save_checkpoint(model, epoch, optimizer, best_acc)
@@ -90,7 +99,7 @@ def train_nn(model, train_loader, test_loader, criterion, optimizer, n_epochs):
     return model
 
 
-def evaluate_model_on_test_set(model, test_loader):
+def evaluate_model_on_test_set(model, test_loader, epoch):
     model.eval()
     predicted_correctly_on_epoch = 0
     total = 0
@@ -108,6 +117,8 @@ def evaluate_model_on_test_set(model, test_loader):
             predicted_correctly_on_epoch += (predicted == labels).sum().item()
 
     epoch_acc = 100.0 * predicted_correctly_on_epoch / total
+    writer.add_scalar('Validation accuracy', epoch_acc, epoch)
+    writer.close()
     print("- Validation dataset. Got %d out of %d images correctly (%.3f%%)"
           % (predicted_correctly_on_epoch, total, epoch_acc))
 
@@ -121,29 +132,30 @@ def save_checkpoint(model, epoch, optimizer, best_acc):
         'best accuracy': best_acc,
         'optimizer': optimizer.state_dict(),
     }
-    torch.save(state, 'model_best_checkpoint.pth.tar')
+    torch.save(state, '20211024_resnet18_2.pth.tar')
 
 
-resnet18_model = models.resnet18(pretrained=True)
-num_features = resnet18_model.fc.in_features
+num_features = training_model.fc.in_features
 number_of_classes = 651
-resnet18_model.fc = nn.Linear(num_features, number_of_classes)
-model = resnet18_model.to(device)
+training_model.fc = nn.Linear(num_features, number_of_classes)
+training_model = training_model.to(device)
 loss_fn = nn.CrossEntropyLoss()
 # momentum = accelerate the gradient vectors in the right direction, leading to faster converging
 # weight decay = help with prevent overfitting
-optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9, weight_decay=0.003)
+optimizer = optim.SGD(training_model.parameters(), lr=0.001, momentum=0.9, weight_decay=0.003)
 
-train_nn(model, training_loader, validation_loader, loss_fn, optimizer, 100)
+writer.add_graph(training_model, training_images.to(device))
+writer.close()
 
-checkpoint = torch.load('model_best_checkpoint.pth.tar')
+train_nn(training_model, training_loader, validation_loader, loss_fn, optimizer, 100)
+
+checkpoint = torch.load('20211024_resnet18_2.pth.tar')
 print(checkpoint['epoch'])
 print(checkpoint['best accuracy'])
 
-resnet18_model = models.resnet18()
-num_features = resnet18_model.fc.in_features
+num_features = training_model.fc.in_features
 number_of_classes = 651
-resnet18_model.fc = nn.Linear(num_features, number_of_classes)
-resnet18_model.load_state_dict(checkpoint['model'])
+training_model.fc = nn.Linear(num_features, number_of_classes)
+training_model.load_state_dict(checkpoint['model'])
 
-torch.save(resnet18_model.state_dict(), 'best_model_modified_train.pth')
+torch.save(training_model.state_dict(), '20211024_resnet18_2.pth')
