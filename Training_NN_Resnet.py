@@ -12,8 +12,8 @@ from torch.utils.tensorboard import SummaryWriter
 # importing dataset
 train_data_folder = './train'
 val_data_folder = './validation'
-writer = SummaryWriter('runs/tensor_board_18_2')
-training_model = models.resnet18(pretrained=False)
+writer = SummaryWriter('runs/tensor_board_resnet_50')
+training_model = models.resnet50(pretrained=True)
 
 train_transforms = transforms.Compose([transforms.RandomCrop(90), transforms.RandomRotation(15),
                                          transforms.ToTensor()])
@@ -70,6 +70,8 @@ def train_nn(model, train_loader, test_loader, criterion, optimizer, n_epochs):
             # print(f"labels: ", labels)
             optimizer.zero_grad()
             outputs = model(images)
+            print('output shape', outputs.shape)
+
             _, predicted = torch.max(outputs.data, 1)
             # the predicted will output torch.Size([32]), i.e. 1d, and is use for target labels or predictions
             print('training predicted ', predicted)
@@ -132,7 +134,7 @@ def save_checkpoint(model, epoch, optimizer, best_acc):
         'best accuracy': best_acc,
         'optimizer': optimizer.state_dict(),
     }
-    torch.save(state, '20211024_resnet18_2.pth.tar')
+    torch.save(state, '20211024_resnet_50.pth.tar')
 
 
 num_features = training_model.fc.in_features
@@ -147,9 +149,9 @@ optimizer = optim.SGD(training_model.parameters(), lr=0.001, momentum=0.9, weigh
 writer.add_graph(training_model, training_images.to(device))
 writer.close()
 
-train_nn(training_model, training_loader, validation_loader, loss_fn, optimizer, 100)
+train_nn(training_model, training_loader, validation_loader, loss_fn, optimizer, 10)
 
-checkpoint = torch.load('20211024_resnet18_2.pth.tar')
+checkpoint = torch.load('20211024_resnet_50.pth.tar')
 print(checkpoint['epoch'])
 print(checkpoint['best accuracy'])
 
@@ -158,4 +160,4 @@ number_of_classes = 651
 training_model.fc = nn.Linear(num_features, number_of_classes)
 training_model.load_state_dict(checkpoint['model'])
 
-torch.save(training_model.state_dict(), '20211024_resnet18_2.pth')
+torch.save(training_model.state_dict(), '20211024_resnet_50.pth')
