@@ -22,12 +22,12 @@ resnet_model.fc = nn.Linear(num_features, number_classes)
 '''how to use densenet models'''
 densenet121_model = models.densenet121()
 # print(densenet121_model)
-# print('before ', densenet121_model.classifier)
+print('before ', densenet121_model.classifier)
 num_features = densenet121_model.classifier.in_features
 number_classes = 651
 densenet121_model_fc = nn.Linear(num_features, number_classes)
 densenet121_model.classifier = densenet121_model_fc
-# print('after ', densenet121_model.classifier)
+print('after ', densenet121_model.classifier)
 
 '''how to use alexnet'''
 alexnet_model = models.alexnet()
