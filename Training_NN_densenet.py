@@ -159,7 +159,7 @@ print(checkpoint['best accuracy'])
 num_features = training_model.classifier.in_features
 number_of_classes = 651
 training_model_fc = nn.Linear(num_features, number_of_classes)
-training_model.classifier[-1] = training_model_fc
+training_model.classifier = training_model_fc
 training_model.load_state_dict(checkpoint['model'])
 
 torch.save(training_model.state_dict(), '20211026_densenet_121.pth')
